@@ -56,7 +56,7 @@ npm start
 yarn start
 ```
 
-Now, open http://localhost:3000 (or your configured port) in your browser to see the application in action.
+Now, open http://localhost:5173 (or your configured port) in your browser to see the application in action.
 
 ## 🤝 We Welcome Your Contributions!
 
