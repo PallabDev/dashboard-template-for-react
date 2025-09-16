@@ -35,7 +35,7 @@ Make sure you have Node.js and a package manager (npm, yarn, or pnpm) installed.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/your-repo-name.git
+    git clone git@github.com:PallabDev/dashboard-template-for-react.git
     cd your-repo-name
     ```
 
