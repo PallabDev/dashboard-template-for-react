@@ -51,9 +51,9 @@ Make sure you have Node.js and a package manager (npm, yarn, or pnpm) installed.
 To start the local development server, run the following command:
 
 ```bash
-npm start
+npm run dev
 # or
-yarn start
+yarn dev
 ```
 
 Now, open http://localhost:5173 (or your configured port) in your browser to see the application in action.
