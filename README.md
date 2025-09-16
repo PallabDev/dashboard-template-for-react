@@ -2,7 +2,7 @@
 
 Welcome to your new dashboard template! This is a clean, responsive, and feature-rich starting point for building modern web application UIs. It's built with a professional tech stack including React, TypeScript, and Tailwind CSS.
 
-![Dashboard Screenshot](https://via.placeholder.com/800x450.png?text=Your+Dashboard+UI+Screenshot)
+![Dashboard Screenshot](https://res.cloudinary.com/dfwgiivke/image/upload/v1758053537/screencapture-localhost-5173-dashboard-profile-2025-09-17-01_29_05_ijsegm.png)
 *(Replace this with a real screenshot of your application!)*
 
 ## ✨ Core Features
