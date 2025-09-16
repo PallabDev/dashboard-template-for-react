@@ -36,7 +36,7 @@ Make sure you have Node.js and a package manager (npm, yarn, or pnpm) installed.
 1.  **Clone the repository:**
     ```bash
     git clone git@github.com:PallabDev/dashboard-template-for-react.git
-    cd your-repo-name
+    cd dashboard-template-for-react
     ```
 
 2.  **Install dependencies:**
