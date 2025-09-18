@@ -7,20 +7,30 @@ import {
     ChevronRight,
     Menu,
     X,
-    LogOut
+    LogOut,
+    ChevronLeft
 } from 'lucide-react';
 
 export default function DashBoardLayout() {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const [isSidebarMinimized, setSidebarMinimized] = useState(false);
 
     return (
         <div className="h-screen flex bg-gray-50">
             {/* Sidebar */}
-            <DashboardNavbar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
+            <DashboardNavbar
+                isOpen={isSidebarOpen}
+                isMinimized={isSidebarMinimized}
+                onClose={() => setSidebarOpen(false)}
+                onToggleMinimize={() => setSidebarMinimized(!isSidebarMinimized)}
+            />
 
             {/* Main content area */}
-            <div className="flex flex-col flex-1 overflow-auto">
-                <DashboardHeader onToggleSidebar={() => setSidebarOpen(!isSidebarOpen)} />
+            <div className={`flex flex-col flex-1 overflow-auto transition-all duration-300`}>
+                <DashboardHeader
+                    onToggleSidebar={() => setSidebarOpen(!isSidebarOpen)}
+                    isSidebarMinimized={isSidebarMinimized}
+                />
                 <main className="flex-1 p-6 overflow-auto">
                     <Outlet />
                 </main>
@@ -29,7 +39,10 @@ export default function DashBoardLayout() {
     );
 }
 
-function DashboardHeader({ onToggleSidebar }: { onToggleSidebar: () => void }) {
+function DashboardHeader({ onToggleSidebar }: {
+    onToggleSidebar: () => void;
+    isSidebarMinimized: boolean;
+}) {
     const location = useLocation();
     const segments = location.pathname.split('/').filter(Boolean);
 
@@ -49,11 +62,12 @@ function DashboardHeader({ onToggleSidebar }: { onToggleSidebar: () => void }) {
                 {/* Mobile menu button (always visible on mobile) */}
                 <button
                     onClick={onToggleSidebar}
-                    className="md:hidden p-2 mr-3 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                    className="md:hidden mr-3 hover:bg-gray-100 rounded-lg transition-all duration-200"
                     aria-label="Toggle Sidebar"
                 >
                     <Menu className="h-5 w-5 text-gray-600" />
                 </button>
+
 
                 {/* Breadcrumbs */}
                 <nav className="text-sm flex items-center gap-2 text-gray-600">
@@ -90,13 +104,20 @@ function prettyLabel(s: string) {
         .join(' ');
 }
 
-function DashboardNavbar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+function DashboardNavbar({ isOpen, isMinimized, onClose, onToggleMinimize }: {
+    isOpen: boolean;
+    isMinimized: boolean;
+    onClose: () => void;
+    onToggleMinimize: () => void;
+}) {
     const location = useLocation();
     const currentPath = location.pathname;
 
     const isActive = (path: string) => {
         return currentPath === path;
     };
+
+    const sidebarWidth = isMinimized ? 'w-16' : 'w-64';
 
     return (
         <>
@@ -109,35 +130,50 @@ function DashboardNavbar({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
             )}
 
             <aside
-                className={`fixed md:relative top-0 left-0 h-screen w-64 border-r border-gray-200/6 bg-white transform transition-all duration-300 z-50
-          ${isOpen ? 'translate-x-0 shadow-lg' : '-translate-x-full'} md:translate-x-0 md:shadow-none`}
+                className={`fixed md:relative top-0 left-0 h-screen border-r border-gray-200/60 bg-white transform transition-all duration-300 z-50
+                    ${sidebarWidth} 
+                    ${isOpen ? 'translate-x-0 shadow-lg' : '-translate-x-full'} 
+                    md:translate-x-0 md:shadow-none`}
             >
                 {/* Logo/Brand */}
-                <div className="flex justify-between items-center px-5 pt-5 pb-4">
-                    <div>
-                        <h1 className="text-xl font-bold text-gray-800">LearnHub</h1>
+                <div className={`flex ${isMinimized ? 'justify-center' : 'justify-between items-center'} px-5 pt-5 pb-4`}>
+                    {!isMinimized && (
+                        <div>
+                            <h1 className="text-xl font-bold text-gray-800">LearnHub</h1>
+                        </div>
+                    )}
+                    {/* Close button for mobile, minimize for desktop */}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={onToggleMinimize}
+                            className="hidden md:flex p-1.5 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                            aria-label={isMinimized ? "Expand sidebar" : "Minimize sidebar"}
+                        >
+                            <ChevronLeft className={`h-4 w-4 text-gray-600 ${isMinimized ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        <button
+                            onClick={onClose}
+                            className="md:hidden p-1.5 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                            aria-label="Close sidebar"
+                        >
+                            <X className="h-4 w-4 text-gray-600" />
+                        </button>
                     </div>
-                    {/* Close button for mobile */}
-                    <button
-                        onClick={onClose}
-                        className="md:hidden p-1.5 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                        aria-label="Close sidebar"
-                    >
-                        <X className="h-4 w-4 text-gray-600" />
-                    </button>
                 </div>
 
                 {/* Full-width separator after brand name */}
-                <div className="w-full h-px bg-gray-200 mb-4"></div>
+                {!isMinimized && <div className="w-full h-px bg-gray-200 mb-4"></div>}
 
                 <nav className="flex flex-col gap-1 px-3">
                     <Link
                         to="/dashboard/profile"
-                        className={`group py-2.5 px-3 rounded-lg flex items-center gap-3 transition-all duration-200 ${isActive('/dashboard/profile')
+                        className={`group py-2.5 px-3 rounded-lg flex items-center ${isMinimized ? 'justify-center' : 'gap-3'} transition-all duration-200 ${isActive('/dashboard/profile')
                             ? 'bg-blue-50 text-blue-700 font-medium'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                             }`}
                         onClick={() => window.innerWidth < 768 && onClose()}
+                        title={isMinimized ? "Profile" : ""}
                     >
                         <div className={`p-1.5 rounded-md transition-colors duration-200 ${isActive('/dashboard/profile')
                             ? 'bg-blue-100 text-blue-600'
@@ -145,16 +181,17 @@ function DashboardNavbar({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                             }`}>
                             <User className="h-4 w-4" />
                         </div>
-                        <span className="text-sm">Profile</span>
+                        {!isMinimized && <span className="text-sm">Profile</span>}
                     </Link>
 
                     <Link
                         to="/dashboard/my-learning"
-                        className={`group py-2.5 px-3 rounded-lg flex items-center gap-3 transition-all duration-200 ${isActive('/dashboard/my-learning')
+                        className={`group py-2.5 px-3 rounded-lg flex items-center ${isMinimized ? 'justify-center' : 'gap-3'} transition-all duration-200 ${isActive('/dashboard/my-learning')
                             ? 'bg-green-50 text-green-700 font-medium'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                             }`}
                         onClick={() => window.innerWidth < 768 && onClose()}
+                        title={isMinimized ? "My Learning" : ""}
                     >
                         <div className={`p-1.5 rounded-md transition-colors duration-200 ${isActive('/dashboard/my-learning')
                             ? 'bg-green-100 text-green-600'
@@ -162,16 +199,17 @@ function DashboardNavbar({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                             }`}>
                             <BookOpen className="h-4 w-4" />
                         </div>
-                        <span className="text-sm">My Learning</span>
+                        {!isMinimized && <span className="text-sm">My Learning</span>}
                     </Link>
 
                     <Link
                         to="/dashboard/manage-content"
-                        className={`group py-2.5 px-3 rounded-lg flex items-center gap-3 transition-all duration-200 ${isActive('/dashboard/manage-content')
+                        className={`group py-2.5 px-3 rounded-lg flex items-center ${isMinimized ? 'justify-center' : 'gap-3'} transition-all duration-200 ${isActive('/dashboard/manage-content')
                             ? 'bg-amber-50 text-amber-700 font-medium'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                             }`}
                         onClick={() => window.innerWidth < 768 && onClose()}
+                        title={isMinimized ? "Manage Content" : ""}
                     >
                         <div className={`p-1.5 rounded-md transition-colors duration-200 ${isActive('/dashboard/manage-content')
                             ? 'bg-amber-100 text-amber-600'
@@ -179,17 +217,18 @@ function DashboardNavbar({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                             }`}>
                             <Folder className="h-4 w-4" />
                         </div>
-                        <span className="text-sm">Manage Content</span>
+                        {!isMinimized && <span className="text-sm">Manage Content</span>}
                     </Link>
 
                     {/* Logout link */}
                     <Link
                         to="/logout"
-                        className={`group py-2.5 px-3 rounded-lg flex items-center gap-3 transition-all duration-200 ${isActive('/logout')
+                        className={`group py-2.5 px-3 rounded-lg flex items-center ${isMinimized ? 'justify-center' : 'gap-3'} transition-all duration-200 ${isActive('/logout')
                             ? 'bg-red-50 text-red-700 font-medium'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                             }`}
                         onClick={() => window.innerWidth < 768 && onClose()}
+                        title={isMinimized ? "Logout" : ""}
                     >
                         <div className={`p-1.5 rounded-md transition-colors duration-200 ${isActive('/logout')
                             ? 'bg-red-100 text-red-600'
@@ -197,14 +236,16 @@ function DashboardNavbar({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                             }`}>
                             <LogOut className="h-4 w-4" />
                         </div>
-                        <span className="text-sm">Logout</span>
+                        {!isMinimized && <span className="text-sm">Logout</span>}
                     </Link>
                 </nav>
 
-                {/* Footer with copyright */}
-                <div className="absolute bottom-4 left-5 right-5">
-                    <p className="text-xs text-gray-400">© 2024 LearnHub. All rights reserved.</p>
-                </div>
+                {/* Footer with copyright - only show when not minimized */}
+                {!isMinimized && (
+                    <div className="absolute bottom-4 left-5 right-5">
+                        <p className="text-xs text-gray-400">© 2024 LearnHub. All rights reserved.</p>
+                    </div>
+                )}
             </aside>
         </>
     );
